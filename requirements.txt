@@ -1,8 +1,8 @@
-fastapi
-uvicorn
-sqlalchemy
-firecrawl-py
-google-genai
-python-dotenv
-pydantic
-groq
+fastapi==0.111.0
+uvicorn==0.30.1
+sqlalchemy==2.0.44
+firecrawl-py==4.31.0
+google-genai==2.10.0
+python-dotenv==1.0.0
+pydantic==2.12.5
+groq==1.5.0

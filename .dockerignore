@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Ruff cache
+.ruff_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache
+.pytest_cache/
+
+# Documentation
+*.md
+
+# Local database (optional)
+# memento.db
