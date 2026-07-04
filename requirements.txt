@@ -6,3 +6,4 @@ google-genai==2.10.0
 python-dotenv==1.0.0
 pydantic==2.12.5
 groq==1.5.0
+resend
