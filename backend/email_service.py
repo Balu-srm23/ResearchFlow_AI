@@ -1,85 +1,64 @@
 import os
-import ssl
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+
 from dotenv import load_dotenv
+
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 
 load_dotenv()
 
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp-relay.brevo.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
-SENDER_EMAIL = os.getenv("SENDER_EMAIL", EMAIL_USER)
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+
+configuration = sib_api_v3_sdk.Configuration()
+configuration.api_key["api-key"] = BREVO_API_KEY
+
+api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+    sib_api_v3_sdk.ApiClient(configuration)
+)
 
 
 def send_otp_email(recipient_email: str, otp: str):
-    if not EMAIL_USER:
-        raise ValueError("EMAIL_USER is not set in environment variables.")
-    if not EMAIL_PASS:
-        raise ValueError("EMAIL_PASS is not set in environment variables.")
-    if not SENDER_EMAIL:
-        raise ValueError("SENDER_EMAIL is not set in environment variables.")
 
-    subject = "Your ResearchFlow AI Login Code"
+    if not BREVO_API_KEY:
+        raise ValueError("BREVO_API_KEY is missing.")
+
+    if not SENDER_EMAIL:
+        raise ValueError("SENDER_EMAIL is missing.")
 
     html = f"""
     <html>
-      <body style="font-family: Arial, sans-serif; background:#f4f4f5; padding:20px;">
-        <div style="max-width:600px;margin:auto;background:white;padding:40px;border-radius:10px;">
-            <h2 style="text-align:center;color:#111827;">
-                ResearchFlow AI Login
-            </h2>
+      <body style="font-family:Arial;padding:40px;background:#f4f4f4;">
+          <div style="background:white;padding:30px;border-radius:10px;max-width:600px;margin:auto;">
+              <h2>ResearchFlow AI</h2>
 
-            <p>Hello,</p>
+              <p>Your One-Time Password is:</p>
 
-            <p>
-                Use the following One-Time Password to login.
-            </p>
+              <h1 style="font-size:40px;letter-spacing:6px;color:#4CAF50;">
+                  {otp}
+              </h1>
 
-            <div style="
-                font-size:36px;
-                text-align:center;
-                font-weight:bold;
-                letter-spacing:8px;
-                margin:30px;
-                color:#4f46e5;
-            ">
-                {otp}
-            </div>
+              <p>This OTP expires in 10 minutes.</p>
 
-            <p>This OTP expires in 10 minutes.</p>
+              <p>If you didn't request this email, ignore this message.</p>
 
-            <p>If you didn't request this email, simply ignore it.</p>
-        </div>
+          </div>
       </body>
     </html>
     """
 
-    text = f"Your ResearchFlow AI login code is: {otp}\nThis OTP expires in 10 minutes."
-
-    message = MIMEMultipart("alternative")
-    message["Subject"] = subject
-    message["From"] = SENDER_EMAIL
-    message["To"] = recipient_email
-
-    message.attach(MIMEText(text, "plain"))
-    message.attach(MIMEText(html, "html"))
+    email = sib_api_v3_sdk.SendSmtpEmail(
+        to=[{"email": recipient_email}],
+        sender={
+            "name": "ResearchFlow AI",
+            "email": SENDER_EMAIL
+        },
+        subject="ResearchFlow AI Login OTP",
+        html_content=html
+    )
 
     try:
-        if EMAIL_PORT == 465:
-            context = ssl.create_default_context()
-            with smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT, context=context) as server:
-                server.login(EMAIL_USER, EMAIL_PASS)
-                server.sendmail(SENDER_EMAIL, recipient_email, message.as_string())
-        else:
-            with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-                server.ehlo()
-                server.starttls(context=ssl.create_default_context())
-                server.ehlo()
-                server.login(EMAIL_USER, EMAIL_PASS)
-                server.sendmail(SENDER_EMAIL, recipient_email, message.as_string())
+        api_instance.send_transac_email(email)
 
-    except Exception as e:
+    except ApiException as e:
         raise Exception(f"Failed to send email: {e}")
