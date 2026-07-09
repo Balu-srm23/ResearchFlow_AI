@@ -1,7 +1,13 @@
+
 const API_BASE_URL = '/api';
 
 // Auth Check
 const userEmail = localStorage.getItem('userEmail');
+const emailElement = document.getElementById("loggedInEmail");
+
+if(emailElement){
+    emailElement.textContent = userEmail || "Guest";
+}
 if (!userEmail) window.location.href = 'login.html';
 
 // ─── State ───
@@ -14,6 +20,36 @@ let state = {
 
 // ─── DOM Elements ───
 const elements = {};
+
+function showToast(title, message){
+
+    const container =
+        document.getElementById("toastContainer");
+
+    const toast =
+        document.createElement("div");
+
+    toast.className = "toast";
+
+    toast.innerHTML = `
+        <div class="toast-title">
+            ${title}
+        </div>
+
+        <div class="toast-message">
+            ${message}
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(()=>{
+
+        toast.remove();
+
+    },3500);
+
+}
 
 function initElements() {
     elements.urlInput = document.getElementById('urlInput');
@@ -93,10 +129,23 @@ function setupEventListeners() {
     elements.sendChatBtn.addEventListener('click', handleChatSend);
     elements.chatInput.addEventListener('keypress', (e) => e.key === 'Enter' && handleChatSend());
     
-    elements.logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('userEmail');
-        window.location.href = 'login.html';
-    });
+   const logoutModal = document.getElementById("logoutModal");
+
+logoutBtn.addEventListener("click", () => {
+    logoutModal.classList.remove("hidden");
+});
+
+document.getElementById("cancelLogout").addEventListener("click", () => {
+    logoutModal.classList.add("hidden");
+});
+
+document.getElementById("confirmLogout").addEventListener("click", () => {
+
+    localStorage.removeItem("userEmail");
+
+    window.location.href = "login.html";
+
+});
 
     const btd = document.getElementById('backToDash');
     if (btd) btd.addEventListener('click', showDashboard);

@@ -1,6 +1,7 @@
 """
 Main API entry point for ResearchFlow AI.
 """
+
 from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -390,5 +391,12 @@ def get_stats(
     )
 
 
+
+@app.get("/")
+def root():
+    return RedirectResponse(url="/login.html")
+
 # Mount the frontend directory to serve the static HTML/CSS/JS files
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+from fastapi.responses import RedirectResponse
+
+app.mount("/", StaticFiles(directory="frontend"), name="frontend")
