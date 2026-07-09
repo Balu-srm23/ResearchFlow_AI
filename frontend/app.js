@@ -2,14 +2,11 @@
 const API_BASE_URL = '/api';
 
 // Auth Check
-const userEmail = localStorage.getItem('userEmail');
-const emailElement = document.getElementById("loggedInEmail");
+const userEmail = localStorage.getItem("userEmail");
 
-if(emailElement){
-    emailElement.textContent = userEmail || "Guest";
+if (!userEmail) {
+    window.location.href = "login.html";
 }
-if (!userEmail) window.location.href = 'login.html';
-
 // ─── State ───
 let state = {
     mementos: [],
@@ -105,7 +102,14 @@ function initElements() {
 
 // ─── Initialization ───
 document.addEventListener('DOMContentLoaded', async () => {
+
+     
     initElements();
+    const emailElement = document.getElementById("loggedInEmail");
+
+    if (emailElement) {
+        emailElement.textContent = userEmail || "Guest";
+    }
     setupEventListeners();
     setupAnimations();
     initTypewriter('heroTyping', ["Analyze. Compare. Evolve.", "Unlock Research Insights.", "Academic Intelligence."]);
@@ -131,7 +135,7 @@ function setupEventListeners() {
     
    const logoutModal = document.getElementById("logoutModal");
 
-logoutBtn.addEventListener("click", () => {
+elements.logoutBtn.addEventListener("click", () => {
     logoutModal.classList.remove("hidden");
 });
 
